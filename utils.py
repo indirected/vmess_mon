@@ -240,7 +240,7 @@ def init_server(server_name, new_port: int=None):
     return 0
 
 def parse_usage(text: str):
-    stats = pd.DataFrame(json.loads(logs)['stat'])
+    stats = pd.DataFrame(json.loads(text)['stat'])
 
     stats.loc[~stats['name'].str.startswith('user'), 'name'] = \
         stats.loc[~stats['name'].str.startswith('user'), 'name'].str \
