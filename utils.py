@@ -62,14 +62,15 @@ def _remove_user_from_conf(config: dict, cli: dict):
 
 
 
-def new_user(username: str, uuid: str, alterid: int, level: int, max_concurrent: int, max_traffic: int):
+def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_traffic: int):
     cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
     if username in cur_users:
         print("User Already Exists! No changes Made")
-        return
+        return -1
     else:
+        user_uuid = uuid.uuid4()
         userdict = {
-            "id": uuid,
+            "id": user_uuid,
             "level": level,
             "alterId": alterid,
             "email": username
@@ -78,6 +79,8 @@ def new_user(username: str, uuid: str, alterid: int, level: int, max_concurrent:
         _update_user_db()
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
+        print(f"User <{username} UUID: {user_uuid}>")
+        return 0
 
 
 def remove_user(config: dict, username: str):
@@ -224,6 +227,7 @@ def init_server(server_name, new_port: int=None):
             'banned_dict': banned_users_dict
         })
         print(f"Server <{server_name}> Created!")
+        print(f"admin UUID: {admin_uuid}")
     client.close()
     return 0
 
