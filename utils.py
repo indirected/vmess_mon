@@ -180,11 +180,11 @@ def init_server(server_name, new_port: int=None):
 
     server_names = client.vmess.v2ray_config.find({}, {'server_name': 1})
     server_names = [i['server_name'] for i in server_names]
-
+    global v2ray_conf
     if server_name in server_names:
         # Exists - Download stuff
         new_conf = client.vmess.v2ray_config.find_one({"server_name": server_name}, projection={'_id': 0})
-        global v2ray_conf
+        # global v2ray_conf
         v2ray_conf = new_conf
         v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
@@ -211,7 +211,7 @@ def init_server(server_name, new_port: int=None):
         
         user_db.loc[admin_uname] = [True, 0, "", 0.0, -1.0, -1.0, ""]
 
-        global v2ray_conf
+        # global v2ray_conf
         v2ray_conf = new_conf
         v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
