@@ -106,7 +106,7 @@ if __name__ == "__main__":
     elif args.command == 'check':
         res = subprocess.run(['docker', 'logs', '--since', f'{CONFIG.run_interval_min}m', CONFIG.container_name], capture_output=True, text=True)
         logs = res.stdout.split('\n')
-        utils.check_concurrent()
+        utils.check_concurrent(logs)
 
         res = subprocess.run(['docker', 'exec', CONFIG.container_name, 'v2ray', 'api', 'stats', '-server=127.0.0.1:10085', '-json'], capture_output=True, text=True)
         logs = res.stdout
