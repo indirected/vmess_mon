@@ -265,8 +265,8 @@ def update_traffics(stats: pd.DataFrame):
         user_down = stats.loc[f"{user}_downlink", 'value']
         user_traf = user_up + user_down
         user_db.loc[user, 'traffic_used'] = user_traf
-        upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}))
-        download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}))
+        upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}, upsert=True))
+        download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}, upsert=True))
     _update_user_db()
 
     try:
