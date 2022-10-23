@@ -255,7 +255,7 @@ def parse_usage(text: str):
     stats.loc[:, 'value'] = stats['value'].astype(int) / 1024 / 1024 / 1024
     # global user_stats
     # user_stats = stats
-    return stats
+    return stats.set_index('name', drop=True)
 
 def update_traffics(stats: pd.DataFrame):
     upload_updates = []
