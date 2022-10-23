@@ -86,14 +86,14 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         return 0
 
 
-def remove_user(config: dict, username: str):
+def remove_user(username: str):
     cur_users =  [cli['email'] for cli in config['inbounds'][0]['settings']['clients']]
     if username not in cur_users:
         print("User Does Not Exists! No changes Made")
         return
     else:
         cli_dict = _get_cli_dict_from_config(v2ray_conf, username)
-        _remove_user_from_conf(config, cli_dict)
+        _remove_user_from_conf(v2ray_conf, cli_dict)
         user_db.loc[username, ['is_active', 'ban_reason']] = [False, 'manual']
         _update_user_db()
         banned_users_dict[username] = cli_dict
@@ -138,6 +138,7 @@ def unban_user(username: str):
 
     user_db.loc[username, 'is_active'] = True
     _update_user_db()
+    print(f"User <{username}> Unbanned!")
 
 
 def check_for_unban():
@@ -192,7 +193,8 @@ def init_server(server_name, new_port: int=None):
         new_conf = client.vmess.v2ray_config.find_one({"server_name": server_name}, projection={'_id': 0})
         # global v2ray_conf
         v2ray_conf = new_conf
-        v2ray_conf['inbounds'][0]["port"] = int(new_port)
+        if new_port is not None:
+            v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
 
         new_userdb = client.vmess.user_dbs.find_one({"server_name": server_name})
@@ -220,7 +222,8 @@ def init_server(server_name, new_port: int=None):
 
         # global v2ray_conf
         v2ray_conf = new_conf
-        v2ray_conf['inbounds'][0]["port"] = int(new_port)
+        if new_port is not None:
+            v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
         _update_user_db()
 
