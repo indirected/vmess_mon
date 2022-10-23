@@ -203,7 +203,7 @@ def init_server(server_name, new_port: int=None):
     else:
         # Does Not Exist - Create New
         new_conf = client.vmess.v2ray_config.find_one({"server_name": "init"}, projection={'_id': 0})
-        new_conf['sever_name'] = server_name
+        new_conf['server_name'] = server_name
         admin_cli = new_conf['inbounds'][0]['settings']['clients'][0]
         admin_uname = admin_cli['email']
         admin_uuid = str(uuid.uuid4())
