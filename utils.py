@@ -4,7 +4,8 @@ import numpy as np
 import json
 import datetime
 import subprocess
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
+from pymongo.errors import BulkWriteError
 from bson import json_util
 import uuid
 import CONFIG
@@ -82,7 +83,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         _update_user_db()
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
-        print(f"User <{username} UUID: {user_uuid}>")
+        print(f"User <{username}> UUID: {user_uuid}>")
         return 0
 
 
@@ -238,11 +239,68 @@ def init_server(server_name, new_port: int=None):
     client.close()
     return 0
 
+def parse_usage(text: str):
+    stats = pd.DataFrame(json.loads(logs)['stat'])
+
+    stats.loc[~stats['name'].str.startswith('user'), 'name'] = \
+        stats.loc[~stats['name'].str.startswith('user'), 'name'].str \
+        .split('>>>') \
+        .apply(lambda z: f"sys_{z[1]} {z[3]}")
+
+    stats.loc[stats['name'].str.startswith('user'), 'name'] = \
+        stats.loc[stats['name'].str.startswith('user'), 'name'].str \
+        .split('>>>') \
+        .apply(lambda z: f"{z[1]} {z[3]}")
+
+    stats.loc[:, 'value'] = stats['value'].astype(int) / 1024 / 1024 / 1024
+    # global user_stats
+    # user_stats = stats
+    return stats
+
+def update_traffics(stats: pd.DataFrame):
+    upload_updates = []
+    download_updates = []
+    for user in user_db.index:
+        user_up = stats.loc[f"{user}_uplink", 'value']
+        user_down = stats.loc[f"{user}_downlink", 'value']
+        user_traf = user_up + user_down
+        user_db.loc[user, 'traffic_used'] = user_traf
+        upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}))
+        download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}))
+    _update_user_db()
+
+    try:
+        with open(CONFIG.db_constring_file, 'r') as fp:
+            constr = fp.readline()
+        client = MongoClient(constr)
+        
+        client.vmess.traffic_upload.bulk_write(upload_updates, ordered=False)
+        client.vmess.traffic_download.bulk_write(download_updates, ordered=False)
+        client.close()
+    except BulkWriteError as bwe:
+        print("Failed to update traffics in mongoDB")
+        print(bwe.details)
+    print("Updated Traffic Usage!")
+
+def check_overages():
+    for user, row in user_db.iterrows():
+        if row['is_active'] and row['max_traffic'] > 0:
+            if row['traffic_used'] > row['max_traffic']:
+                cli_dict = _get_cli_dict_from_config(v2ray_conf, user)
+
+                banned_users_dict[user] = cli_dict
+                _update_json_config(banned_users_dict, CONFIG.temp_ban_users_file)
+
+                user_db.loc[user, ['is_active', 'ban_reason']] = [False, 'overage']
+                _remove_user_from_conf(v2ray_conf, cli_dict)
+                print(f"User <{user}> Banned Due to Overage ({row['traffic_used']}/{row['max_traffic']})")
+    _update_user_db()
 
 
 
-if __name__ == '__main__':
-    res = subprocess.run(['docker', 'logs', '--since', f'{CONFIG.run_interval_min}m', CONFIG.container_name], capture_output=True, text=True)
-    logs = res.stdout.split('\n')
-    check_for_unban()
-    check_concurrent()
+
+# if __name__ == '__main__':
+#     res = subprocess.run(['docker', 'logs', '--since', f'{CONFIG.run_interval_min}m', CONFIG.container_name], capture_output=True, text=True)
+#     logs = res.stdout.split('\n')
+#     check_for_unban()
+#     check_concurrent()
