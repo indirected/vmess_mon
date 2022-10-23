@@ -102,7 +102,7 @@ def remove_user(username: str):
         print(f"User <{username}> Removed!")
 
 
-def check_concurrent():
+def check_concurrent(logs: str):
     user_ips = _parse_logs(logs)
     print(user_ips)
     for k, v in user_ips.items():
