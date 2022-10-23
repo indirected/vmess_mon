@@ -252,7 +252,7 @@ def parse_usage(text: str):
         .split('>>>') \
         .apply(lambda z: f"{z[1]}_{z[3]}")
 
-    stats.loc[:, 'value'] = stats['value'].astype(int) / 1024 / 1024 / 1024
+    stats.loc[:, ['value']] = stats[['value']].astype(int) / 1024 / 1024 / 1024
     # global user_stats
     # user_stats = stats
     return stats.set_index('name', drop=True)
