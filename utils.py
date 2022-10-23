@@ -68,7 +68,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         print("User Already Exists! No changes Made")
         return -1
     else:
-        user_uuid = uuid.uuid4()
+        user_uuid = str(uuid.uuid4())
         userdict = {
             "id": user_uuid,
             "level": level,
