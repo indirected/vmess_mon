@@ -18,7 +18,7 @@ with open(CONFIG.temp_ban_users_file, 'r') as fp:
     banned_users_dict = json.load(fp)
 
 
-user_db = pd.read_csv(CONFIG.user_db_file, index_col='username')
+user_db = pd.read_csv(CONFIG.user_db_file, index_col=0)
 
 
 
@@ -93,7 +93,7 @@ def remove_user(config: dict, username: str):
         return
     else:
         cli_dict = _get_cli_dict_from_config(v2ray_conf, username)
-        _remove_user_from_conf(config, username)
+        _remove_user_from_conf(config, cli_dict)
         user_db.loc[username, ['is_active', 'ban_reason']] = [False, 'manual']
         _update_user_db()
         banned_users_dict[username] = cli_dict
@@ -198,6 +198,7 @@ def init_server(server_name, new_port: int=None):
         new_userdb = client.vmess.user_dbs.find_one({"server_name": server_name})
         global user_db
         user_db = pd.DataFrame(new_userdb['data'])
+        user_db.index.name = 'username'
         _update_user_db()
 
         new_banned = client.vmess.banned.find_one({"server_name": server_name})
