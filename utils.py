@@ -245,12 +245,12 @@ def parse_usage(text: str):
     stats.loc[~stats['name'].str.startswith('user'), 'name'] = \
         stats.loc[~stats['name'].str.startswith('user'), 'name'].str \
         .split('>>>') \
-        .apply(lambda z: f"sys_{z[1]} {z[3]}")
+        .apply(lambda z: f"sys_{z[1]}_{z[3]}")
 
     stats.loc[stats['name'].str.startswith('user'), 'name'] = \
         stats.loc[stats['name'].str.startswith('user'), 'name'].str \
         .split('>>>') \
-        .apply(lambda z: f"{z[1]} {z[3]}")
+        .apply(lambda z: f"{z[1]}_{z[3]}")
 
     stats.loc[:, 'value'] = stats['value'].astype(int) / 1024 / 1024 / 1024
     # global user_stats
