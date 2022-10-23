@@ -5,12 +5,14 @@ import json
 import datetime
 import subprocess
 from pymongo import MongoClient
+from bson import json_util
 import uuid
 import CONFIG
 
 
 with open(CONFIG.conf_file, 'r') as fp:
     v2ray_conf = json.load(fp)
+    v2ray_conf = json_util.loads(json.dumps(v2ray_conf))
 
 with open(CONFIG.temp_ban_users_file, 'r') as fp:
     banned_users_dict = json.load(fp)
@@ -43,6 +45,7 @@ def _update_user_db():
     user_db.to_csv(CONFIG.user_db_file)
 
 def _update_json_config(config: dict, file: str):
+    config = json.loads(json_util.dumps(config))
     with open(file, 'w') as fp:
         json.dump(config, fp, indent=4)
 
