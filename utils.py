@@ -8,6 +8,7 @@ from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 from bson import json_util
 import uuid
+import base64
 import CONFIG
 
 
@@ -64,7 +65,14 @@ def _remove_user_from_conf(config: dict, cli: dict):
     config['inbounds'][0]['settings']['clients'].remove(cli)
     _update_json_config(config, CONFIG.conf_file)
 
-
+def vmess_str(alterid: int, user_uuid: str, port: int, server_name: str):
+    user_conf = CONFIG.vmess_template.copy()
+    user_conf['aid'] = f"{alterid}"
+    user_conf['id'] = user_uuid
+    user_conf['port'] = f"{port}"
+    user_conf['ps'] = server_name
+    vmess_str = 'vmess://' + base64.encodebytes(json.dumps(user_conf).replace(' ', '').encode()).decode().replace('\n', '')
+    return vmess_str
 
 def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_traffic: int):
     cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
@@ -84,6 +92,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
         print(f"User <{username}> UUID: {user_uuid}>")
+        print(vmess_str(alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name']))
         return 0
 
 
@@ -237,6 +246,7 @@ def init_server(server_name, new_port: int=None):
         })
         print(f"Server <{server_name}> Created!")
         print(f"admin UUID: {admin_uuid}")
+        print(vmess_str(admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name']))
     client.close()
     return 0
 
