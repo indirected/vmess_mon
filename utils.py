@@ -5,7 +5,7 @@ import json
 import datetime
 import subprocess
 from pymongo import MongoClient, UpdateOne
-from pymongo.errors import BulkWriteError
+from pymongo.errors import BulkWriteError, InvalidOperation
 from bson import json_util
 import uuid
 import base64
@@ -335,6 +335,8 @@ def update_traffics(stats: pd.DataFrame):
     except BulkWriteError as bwe:
         print("Failed to update traffics in mongoDB")
         print(bwe.details)
+    except InvalidOperation as ivo:
+        print("No changes in Traffic Usage")
     print("Updated Traffic Usage!")
 
 def check_overages():
