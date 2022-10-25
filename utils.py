@@ -122,6 +122,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         user_vmess = vmess_str(alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
         client.vmess.user_vmess.insert_one({
             "username": username,
+            "server_name": v2ray_conf['server_name'],
             "vmess": user_vmess
         })
         client.close()
@@ -284,7 +285,8 @@ def init_server(server_name, new_port: int=None):
         admin_vmess = vmess_str(admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
         client.vmess.user_vmess.insert_one({
             "username": admin_uname,
-            "vmess": vmess_str
+            "server_name": server_name,
+            "vmess": admin_vmess
         })
         client.close()
         print(admin_vmess)
