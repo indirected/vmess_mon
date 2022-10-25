@@ -5,3 +5,4 @@ dbconstring
 *.json
 *.csv
 *.ipynb
+*.discord.py
