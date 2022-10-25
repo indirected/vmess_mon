@@ -90,6 +90,8 @@ getvmess_parser.add_argument(
     help="username to get its vmess",
     required=True
 )
+stats_parser = subparser.add_parser("stats", help="Show user stats table")
+
 # init_parser = subparser.add_parser("init", help="Create or restore server")
 
 if len(sys.argv)==1:
@@ -124,6 +126,8 @@ if __name__ == "__main__":
         utils.check_for_unban()
     elif args.command == 'getvmess':
         utils.get_vmess(args.username)
+    elif args.command == 'stats':
+        print(utils.user_db)
 
 
     if args.updateDB and args.command != 'init':
