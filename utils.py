@@ -31,7 +31,7 @@ user_db = pd.read_csv(CONFIG.user_db_file, index_col=0)
 async def discord_monitoring(title: str, name: str, message: str, color: int=16711680):
     async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.from_url(discord_webhook_url, session=session)
-        await webhook.send('', username=v2ray_conf['server_name'], embed=discord.Embed(title=title, description=f'** {name} **\n {message}', colour=16711680, timestamp=datetime.datetime.now()))
+        await webhook.send('', username=v2ray_conf['server_name'], embed=discord.Embed(title=title, description=f'** {name} **\n {message}', colour=color, timestamp=datetime.datetime.now()))
 
 
 def _parse_logs(logs: str):
