@@ -189,7 +189,7 @@ def unban_user(username: str):
 def check_for_unban():
     for banned_user in list(banned_users_dict.keys()):
         if user_db.loc[banned_user, 'ban_count'] <= CONFIG.max_bans:
-            if datetime.datetime.strptime(user_db.loc[banned_user, 'last_banned'], '%Y-%m-%d %H:%M:%S.%f') + datetime.timedelta(minutes=CONFIG.ban_time_mins) < datetime.datetime.now():
+            if datetime.datetime.strptime(str(user_db.loc[banned_user, 'last_banned']), '%Y-%m-%d %H:%M:%S.%f') + datetime.timedelta(minutes=CONFIG.ban_time_mins) < datetime.datetime.now():
                 if 'concurrent' in user_db.loc[banned_user, 'ban_reason']:
                     unban_user(banned_user)
                     print(f"User <{banned_user}> Unbanned by time")
