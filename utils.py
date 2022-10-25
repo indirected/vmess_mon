@@ -148,10 +148,12 @@ def remove_user(username: str):
 
 def check_concurrent(logs: str):
     user_ips = _parse_logs(logs)
-    print(user_ips)
+    # prints users dictionaries with their ips
+    # print(user_ips)
+
     for k, v in user_ips.items():
         if user_db.loc[k, 'max_concurrent'] > 0 and len(v) > user_db.loc[k, 'max_concurrent']:
-            print(f"User <{k}> is koskesh")
+            print(f"User <{k}> has too many concurrent connections.")
 
             # Enter Banning procedure
             if user_db.loc[k, 'is_active'] == True:
