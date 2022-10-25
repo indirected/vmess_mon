@@ -2,6 +2,7 @@ version: '3'
 services:
   v2ray:
     image: v2fly/v2fly-core
+    container_name: vmon_v2ray
     restart: always
     network_mode: host
     environment:

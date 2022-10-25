@@ -2,7 +2,7 @@ import os
 
 # Things you NEED to change
 server_ip = 'put_server_ip_here'
-container_name = 'vmess_v2ray_1'
+container_name = 'vmon_v2ray'
 
 
 logfile = 'logs.txt'
