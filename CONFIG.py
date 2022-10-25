@@ -9,6 +9,7 @@ logfile = 'logs.txt'
 conf_file = 'config.json'
 user_db_file = 'users.csv'
 db_constring_file = 'dbconstring'
+discord_webhook_url = 'discord'
 user_db_cols = ['username', 'is_active', 'ban_count', 'last_banned', 'traffic_used', 'max_traffic', 'max_concurrent', 'ban_reason']
 
 

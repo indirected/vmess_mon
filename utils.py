@@ -9,6 +9,9 @@ from pymongo.errors import BulkWriteError, InvalidOperation
 from bson import json_util
 import uuid
 import base64
+import discord
+import aiohttp
+import asyncio
 import CONFIG
 
 
@@ -19,9 +22,16 @@ with open(CONFIG.conf_file, 'r') as fp:
 with open(CONFIG.temp_ban_users_file, 'r') as fp:
     banned_users_dict = json.load(fp)
 
+with open(CONFIG.discord_webhook_url, 'r') as fp:
+    discord_webhook_url = fp.readline()
+
 
 user_db = pd.read_csv(CONFIG.user_db_file, index_col=0)
 
+async def discord_monitoring(title: str, name: str, message: str, color: int=16711680):
+    async with aiohttp.ClientSession() as session:
+        webhook = discord.Webhook.from_url(discord_webhook_url, session=session)
+        await webhook.send('', username=v2ray_conf['server_name'], embed=discord.Embed(title=title, description=f'** {name} **\n {message}', colour=16711680, timestamp=datetime.datetime.now()))
 
 
 def _parse_logs(logs: str):
@@ -144,6 +154,7 @@ def remove_user(username: str):
         banned_users_dict[username] = cli_dict
         _update_json_config(banned_users_dict, CONFIG.temp_ban_users_file)
         print(f"User <{username}> Removed!")
+        asyncio.run(discord_monitoring(title='User Ban', name=username, message='user banned manually'))
 
 
 def check_concurrent(logs: str):
@@ -170,6 +181,8 @@ def check_concurrent(logs: str):
                     f'concurrent ({len(v)})'
                 ]
                 _update_user_db()
+                if user_db.loc[k, 'ban_count'] == CONFIG.max_bans:
+                    asyncio.run(discord_monitoring(title='User Ban', name=username, message='user banned due to concurrent connections'))
 
 
 def unban_user(username: str):
@@ -186,6 +199,8 @@ def unban_user(username: str):
     user_db.loc[username, 'is_active'] = True
     _update_user_db()
     print(f"User <{username}> Unbanned!")
+    asyncio.run(discord_monitoring(title='User Unban', name=username, message='user unbanned manually', color=65280))
+
 
 
 def check_for_unban():
@@ -353,6 +368,7 @@ def check_overages():
                 user_db.loc[user, ['is_active', 'ban_reason']] = [False, 'overage']
                 _remove_user_from_conf(v2ray_conf, cli_dict)
                 print(f"User <{user}> Banned Due to Overage ({row['traffic_used']}/{row['max_traffic']})")
+                asyncio.run(discord_monitoring(title='User Ban', name=username, message=f'user banned due to traffic overrage ({row['traffic_used']}/{row['max_traffic']})'))
     _update_user_db()
 
 
