@@ -1,6 +1,7 @@
 import argparse
 import sys
 import subprocess
+import os
 import utils
 import CONFIG
 
@@ -129,4 +130,5 @@ if __name__ == "__main__":
         utils.update_mongo()
     
     if args.resetv2:
-        subprocess.run(['docker-compose', 'restart'])
+        # print(os.getcwd())
+        subprocess.run(['/usr/local/bin/docker-compose', 'restart'])

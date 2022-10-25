@@ -294,7 +294,7 @@ def init_server(server_name, new_port: int=None):
     return 0
 
 def parse_usage(text: str):
-    stats = pd.DataFrame(json.loads(text)['stat'])
+    stats = pd.DataFrame(json.loads(text)['stat']).fillna(0)
 
     stats.loc[~stats['name'].str.startswith('user'), 'name'] = \
         stats.loc[~stats['name'].str.startswith('user'), 'name'].str \
@@ -319,9 +319,9 @@ def update_traffics(stats: pd.DataFrame):
             user_up = stats.loc[f"{user}_uplink", 'value']
             user_down = stats.loc[f"{user}_downlink", 'value']
             user_traf = user_up + user_down
-            user_db.loc[user, 'traffic_used'] = user_traf
-            upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}, upsert=True))
-            download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}, upsert=True))
+            user_db.loc[user, 'traffic_used'] += user_traf
+            upload_updates.append(UpdateOne({'username': user}, {'$inc': {'value': user_up}}, upsert=True))
+            download_updates.append(UpdateOne({'username': user}, {'$inc': {'value': user_down}}, upsert=True))
     _update_user_db()
 
     try:
