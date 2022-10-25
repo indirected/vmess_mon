@@ -26,7 +26,7 @@ user_db = pd.read_csv(CONFIG.user_db_file, index_col=0)
 
 def _parse_logs(logs: str):
     logs_array = [i.split() for i in logs]
-    users = [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
+    users = user_db.index
 
     user_ips = {u: [] for u in users}
     for line_array in logs_array:
@@ -94,7 +94,7 @@ def get_vmess(username: str):
         return 0
 
 def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_traffic: int):
-    cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
+    cur_users =  user_db.index
     if username in cur_users:
         print("User Already Exists! No changes Made")
         return -1
@@ -132,7 +132,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
 
 
 def remove_user(username: str):
-    cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
+    cur_users = user_db.index
     if username not in cur_users:
         print("User Does Not Exists! No changes Made")
         return
