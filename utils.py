@@ -74,12 +74,39 @@ def vmess_str(alterid: int, user_uuid: str, port: int, server_name: str):
     vmess_str = 'vmess://' + base64.encodebytes(json.dumps(user_conf).replace(' ', '').encode()).decode().replace('\n', '')
     return vmess_str
 
+def get_vmess(username: str):
+    if username not in user_db.index:
+        print("User is not in this server!")
+        return -1
+
+    with open(CONFIG.db_constring_file, 'r') as fp:
+        constr = fp.readline()
+    client = MongoClient(constr)
+    if client.vmess.user_vmess.count_documents({"username": username}) == 0:
+        print("User Does Not Exist in MongoDB")
+        client.close()
+        return -2
+    else:
+        print(f"Printing vmess string for user <{username}>")
+        user_vmess = client.vmess.user_vmess.find_one({"username": username})
+        print(user_vmess['vmess'])
+        client.close()
+        return 0
+
 def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_traffic: int):
     cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
     if username in cur_users:
         print("User Already Exists! No changes Made")
         return -1
     else:
+        with open(CONFIG.db_constring_file, 'r') as fp:
+            constr = fp.readline()
+        client = MongoClient(constr)
+        if client.vmess.user_vmess.count_documents({"username": username}) > 0:
+            print("User Exists in DB. Choose a Different one")
+            client.close()
+            return -1
+
         user_uuid = str(uuid.uuid4())
         userdict = {
             "id": user_uuid,
@@ -91,13 +118,20 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         _update_user_db()
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
-        print(f"User <{username}> UUID: {user_uuid}>")
-        print(vmess_str(alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name']))
+        print(f"User <{username}> UUID: {user_uuid}")
+        user_vmess = vmess_str(alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
+        client.vmess.user_vmess.insert_one({
+            "username": username,
+            "vmess": user_vmess
+        })
+        client.close()
+        print(user_vmess)
         return 0
 
 
+
 def remove_user(username: str):
-    cur_users =  [cli['email'] for cli in config['inbounds'][0]['settings']['clients']]
+    cur_users =  [cli['email'] for cli in v2ray_conf['inbounds'][0]['settings']['clients']]
     if username not in cur_users:
         print("User Does Not Exists! No changes Made")
         return
@@ -221,6 +255,7 @@ def init_server(server_name, new_port: int=None):
         
     else:
         # Does Not Exist - Create New
+        
         new_conf = client.vmess.v2ray_config.find_one({"server_name": "init"}, projection={'_id': 0})
         new_conf['server_name'] = server_name
         admin_cli = new_conf['inbounds'][0]['settings']['clients'][0]
@@ -246,7 +281,13 @@ def init_server(server_name, new_port: int=None):
         })
         print(f"Server <{server_name}> Created!")
         print(f"admin UUID: {admin_uuid}")
-        print(vmess_str(admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name']))
+        admin_vmess = vmess_str(admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
+        client.vmess.user_vmess.insert_one({
+            "username": admin_uname,
+            "vmess": vmess_str
+        })
+        client.close()
+        print(admin_vmess)
     client.close()
     return 0
 
@@ -263,7 +304,7 @@ def parse_usage(text: str):
         .split('>>>') \
         .apply(lambda z: f"{z[1]}_{z[3]}")
 
-    stats.loc[:, ['value']] = stats[['value']].astype(int) / 1024 / 1024 / 1024
+    stats.loc[:, ['value']] = stats[['value']].astype(int, errors='ignore') / 1024 / 1024 / 1024
     # global user_stats
     # user_stats = stats
     return stats.set_index('name', drop=True)
@@ -272,12 +313,13 @@ def update_traffics(stats: pd.DataFrame):
     upload_updates = []
     download_updates = []
     for user in user_db.index:
-        user_up = stats.loc[f"{user}_uplink", 'value']
-        user_down = stats.loc[f"{user}_downlink", 'value']
-        user_traf = user_up + user_down
-        user_db.loc[user, 'traffic_used'] = user_traf
-        upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}, upsert=True))
-        download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}, upsert=True))
+        if stats.loc[stats.index.str.startswith(user)].shape[0] > 0:
+            user_up = stats.loc[f"{user}_uplink", 'value']
+            user_down = stats.loc[f"{user}_downlink", 'value']
+            user_traf = user_up + user_down
+            user_db.loc[user, 'traffic_used'] = user_traf
+            upload_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_up}}, upsert=True))
+            download_updates.append(UpdateOne({'username': user}, {'$set': {'value': user_down}}, upsert=True))
     _update_user_db()
 
     try:

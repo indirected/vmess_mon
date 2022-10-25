@@ -83,6 +83,12 @@ unban_parser.add_argument(
 
 check_parser = subparser.add_parser("check", help="Check for Traffic Overages and Concurrent Connections")
 
+getvmess_parser = subparser.add_parser("getvmess", help="Print a user's vmess string")
+getvmess_parser.add_argument(
+    "--username",
+    help="username to get its vmess",
+    required=True
+)
 # init_parser = subparser.add_parser("init", help="Create or restore server")
 
 if len(sys.argv)==1:
@@ -92,7 +98,7 @@ if len(sys.argv)==1:
 
 args = parser.parse_args()
 
-print(args)
+# print(args)
 
 if __name__ == "__main__":
     if args.command == 'init':
@@ -115,7 +121,10 @@ if __name__ == "__main__":
         utils.check_overages()
 
         utils.check_for_unban()
-    
+    elif args.command == 'getvmess':
+        utils.get_vmess(args.username)
+
+
     if args.updateDB and args.command != 'init':
         utils.update_mongo()
     
