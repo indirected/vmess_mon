@@ -4,8 +4,9 @@
 This program is a user manager for v2fly vmess proxy
 
 
+---
 
-## install instructure
+## Install
 
 First you need to clone this repository:
 
@@ -17,23 +18,9 @@ Run ```bash install.sh``` you will be asked for a Mongodb connection string and 
 
 This will create two files `dbconstring` and `discord`
 
-Then you need to edit `CONFIG.py` and set `server_ip` variable by replacing your server ip address or a domain name that resolves your server ip address with `put_server_ip_here`
+Then you need to edit `CONFIG.py` and set `server_ip` variable by replacing your server ip address or a domain name that resolves to your server ip address.
 
-Now you are all setup.
-
-
-## Setting up a cronjob
-
-For checking the vpn server in intervally you need to set a cronjob in your server
-
-Run `crontab -e`
-
-Place this at the end of the file:
-
-`*/5 * * * * $HOME/vmess_mon/cron.sh >>$HOME/vmess_mon/cron.log 2>>$HOME/vmess_mon/cron.log`
-
-This will set a cronjob that will runs each 5 munutes and checks the vmess logs.
-
+---
 
 ## Using the CLI
 
@@ -64,3 +51,18 @@ stats               Show user stats table
 ```
 
 Run `python3 vmessmon.py init` to initialize application
+Use `-h` at any stage to get help.
+
+---
+
+## Setting Up a Cronjob
+
+For checking the vpn server in intervally you need to set a cronjob in your server
+
+Run `crontab -e`
+
+Place this at the end of the file:
+
+`*/5 * * * * $HOME/vmess_mon/cron.sh >>$HOME/vmess_mon/cron.log 2>>$HOME/vmess_mon/cron.log`
+
+This will set a cronjob that will runs each 5 munutes and checks the vmess logs.
