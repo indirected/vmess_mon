@@ -1,11 +1,5 @@
 #!/bin/bash
 
-echo "Plese enter Mongodb database connection string:"
-read dbconstring
-
-echo "Plese enter discord webhook:"
-read discord
-
 # check if docker is installed
 if ! command -v docker &> /dev/null
 then
@@ -30,6 +24,12 @@ fi
 
 # install requirements
 python3 -m pip install -r requirements.txt
+
+echo "Plese enter Mongodb database connection string:"
+read dbconstring
+
+echo "Plese enter discord webhook:"
+read discord
 
 # create necessary files
 echo $dbconstring > dbconstring
