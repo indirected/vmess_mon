@@ -1,5 +1,17 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+    echo "You should pass db connection string in first argument"
+    exit
+fi
+
+if [ -z "$2" ]
+then
+    echo "You should pass discord webhook in second argument"
+    exit
+fi
+
 # check if docker is installed
 if ! command -v docker &> /dev/null
 then
@@ -26,6 +38,6 @@ fi
 python3 -m pip install -r requirements.txt
 
 # create necessary files
-touch dbconstring
-touch discord
+echo "$1" > dbconstring
+echo "$2" > discord
 
