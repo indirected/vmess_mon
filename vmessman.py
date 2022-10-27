@@ -111,7 +111,7 @@ if __name__ == "__main__":
     elif args.command == 'banuser':
         utils.remove_user(args.username)
     elif args.command == 'unbanuser':
-        utils.unban_user(args.username)
+        utils.unban_user(args.username, is_manual=True)
     elif args.command == 'check':
         res = subprocess.run(['docker', 'logs', '--since', f'{CONFIG.run_interval_min - 1}m', CONFIG.container_name], capture_output=True, text=True)
         logs = res.stdout.split('\n')

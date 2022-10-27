@@ -185,7 +185,7 @@ def check_concurrent(logs: str):
                     asyncio.run(discord_monitoring(title='User Ban', name=k, message='user banned due to concurrent connections'))
 
 
-def unban_user(username: str):
+def unban_user(username: str, is_manual: bool=False):
     if username not in banned_users_dict:
         print("User is not Banned")
         return
@@ -199,7 +199,8 @@ def unban_user(username: str):
     user_db.loc[username, 'is_active'] = True
     _update_user_db()
     print(f"User <{username}> Unbanned!")
-    asyncio.run(discord_monitoring(title='User Unban', name=username, message='user unbanned manually', color=65280))
+    if is_manual:
+        asyncio.run(discord_monitoring(title='User Unban', name=username, message='user unbanned manually', color=65280))
 
 
 
