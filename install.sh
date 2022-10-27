@@ -25,9 +25,12 @@ fi
 # install requirements
 python3 -m pip install -r requirements.txt
 
+echo ""
+echo ""
+echo ""
 echo "Plese enter Mongodb database connection string:"
 read dbconstring
-
+echo ""
 echo "Plese enter discord webhook:"
 read discord
 
