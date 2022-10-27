@@ -1,24 +1,26 @@
 #!/bin/bash
 
+set -e
+
 # check if docker is installed
 if ! command -v docker &> /dev/null
 then
-    echo "docker could not be found, you should install docker first"
+    echo "docker not found, Install Docker then run again."
     exit
 fi
 
 # check if docker-compose is installed
 if ! command -v docker-compose &> /dev/null
 then
-    echo "docker-compose could not be found, you should install docker-compose first"
+    echo "docker-compose not found, Install docker-compose then run again."
     exit
 fi
 
 
 # check if pip is installed
-if ! command -v pip &> /dev/null
+if ! command -v pip3 &> /dev/null
 then
-    echo "pip could not be found, you should install pip first"
+    echo "pip not found,Install python>= 3.8 and pip then run again."
     exit
 fi
 
@@ -38,3 +40,4 @@ read discord
 echo $dbconstring > dbconstring
 echo $discord > discord
 
+echo "Installed. Run python3 vmessman.py -h for help"
