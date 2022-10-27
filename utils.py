@@ -181,8 +181,8 @@ def check_concurrent(logs: str):
                     f'concurrent ({len(v)})'
                 ]
                 _update_user_db()
-                if user_db.loc[k, 'ban_count'] == CONFIG.max_bans:
-                    asyncio.run(discord_monitoring(title='User Ban', name=username, message='user banned due to concurrent connections'))
+                if user_db.loc[k, 'ban_count'] > CONFIG.max_bans:
+                    asyncio.run(discord_monitoring(title='User Ban', name=k, message='user banned due to concurrent connections'))
 
 
 def unban_user(username: str):
