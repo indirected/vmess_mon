@@ -8,4 +8,4 @@ python3 vmessman.py -U -R check
 
 # Usage:
 # Put this in crontab -e
-# */5 * * * * /root/vmess_mon/cron.sh >>/root/vmess_mon/cron.log 2>>/root/vmess_mon/cron.log
+# */5 * * * * $HOME/vmess_mon/cron.sh >>$HOME/vmess_mon/cron.log 2>>$HOME/vmess_mon/cron.log
