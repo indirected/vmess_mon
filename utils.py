@@ -333,7 +333,7 @@ def update_traffics(stats: pd.DataFrame):
     upload_updates = []
     download_updates = []
     for user in user_db.index:
-        if stats.loc[f"{user}_uplink"].shape[0] > 0:
+        if f"{user}_uplink" in stats.index:
             user_up = stats.loc[f"{user}_uplink", 'value']
             user_down = stats.loc[f"{user}_downlink", 'value']
             user_traf = user_up + user_down
