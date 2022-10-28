@@ -75,14 +75,14 @@ def _remove_user_from_conf(config: dict, cli: dict):
     config['inbounds'][0]['settings']['clients'].remove(cli)
     _update_json_config(config, CONFIG.conf_file)
 
-def vmess_str(alterid: int, user_uuid: str, port: int, server_name: str):
+def vmess_str(username: str, alterid: int, user_uuid: str, port: int, server_name: str):
     user_conf = CONFIG.vmess_template.copy()
     user_conf['aid'] = f"{alterid}"
     user_conf['id'] = user_uuid
     user_conf['port'] = f"{port}"
-    user_conf['ps'] = server_name
-    vmess_str = 'vmess://' + base64.encodebytes(json.dumps(user_conf).replace(' ', '').encode()).decode().replace('\n', '')
-    return vmess_str
+    user_conf['ps'] = f'{username}@{server_name}'
+    user_vmess_str = 'vmess://' + base64.encodebytes(json.dumps(user_conf).replace(' ', '').encode()).decode().replace('\n', '')
+    return user_vmess_str
 
 def get_vmess(username: str):
     if username not in user_db.index:
@@ -129,7 +129,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
         print(f"User <{username}> UUID: {user_uuid}")
-        user_vmess = vmess_str(alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
+        user_vmess = vmess_str(username, alterid, user_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
         client.vmess.user_vmess.insert_one({
             "username": username,
             "server_name": v2ray_conf['server_name'],
@@ -300,7 +300,7 @@ def init_server(server_name, new_port: int=None):
         })
         print(f"Server <{server_name}> Created!")
         print(f"admin UUID: {admin_uuid}")
-        admin_vmess = vmess_str(admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
+        admin_vmess = vmess_str('admin', admin_cli['alterId'], admin_uuid, v2ray_conf['inbounds'][0]['port'], v2ray_conf['server_name'])
         client.vmess.user_vmess.insert_one({
             "username": admin_uname,
             "server_name": server_name,
