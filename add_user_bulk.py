@@ -13,15 +13,15 @@ for user,row in users_file.iterrows():
         'vmessman.py',
         'newuser',
         '--username',
-        user,
+        str(user),
         '--alterid',
-        row['alterid'],
+        str(row['alterid']),
         '--level',
-        row['level'],
+        str(row['level']),
         '--traffic',
-        row['max_traffic'],
+        str(row['max_traffic']),
         '--concurrent',
-        row['max_concurrent']
+        str(row['max_concurrent'])
         ],
         capture_output=True,
         text=True
