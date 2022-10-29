@@ -10,7 +10,7 @@ for user,row in users_file.iterrows():
     cmd_result = subprocess.run(
         [
         'python3',
-        'vmessman.py',
+        'vmessmon.py',
         'newuser',
         '--username',
         str(user),
@@ -43,7 +43,7 @@ for user,row in users_file.iterrows():
 update_cmd_result = subprocess.run(
     [
         'python3',
-        'vmessman.py',
+        'vmessmon.py',
         '-U'
         '-R'
     ], 
