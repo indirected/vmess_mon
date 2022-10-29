@@ -44,7 +44,7 @@ update_cmd_result = subprocess.run(
     [
         'python3',
         'vmessmon.py',
-        '-U'
+        '-U',
         '-R'
     ]
 )
