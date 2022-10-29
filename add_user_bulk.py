@@ -46,9 +46,7 @@ update_cmd_result = subprocess.run(
         'vmessmon.py',
         '-U'
         '-R'
-    ], 
-    capture_output=True,
-    text=True
+    ]
 )
 
 # todo: check if update cmd failed or not
