@@ -18,6 +18,8 @@ import CONFIG
 with open(CONFIG.conf_file, 'r') as fp:
     v2ray_conf = json.load(fp)
     v2ray_conf = json_util.loads(json.dumps(v2ray_conf))
+v2ray_conf['Needs_restart'] = v2ray_conf.get('Needs_restart', False)
+
 
 with open(CONFIG.temp_ban_users_file, 'r') as fp:
     banned_users_dict = json.load(fp)
@@ -125,6 +127,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
             "email": username
         }
         user_db.loc[username] = [True, 0, "", 0, max_traffic, max_concurrent, ""]
+        v2ray_conf['Needs_restart'] = True
         _update_user_db()
         _add_user_to_conf(v2ray_conf, userdict)
         print(f"User <{username}> Added!")
@@ -147,6 +150,7 @@ def remove_user(username: str):
         print("User Does Not Exists! No changes Made")
         return
     else:
+        v2ray_conf['Needs_restart'] = True
         cli_dict = _get_cli_dict_from_config(v2ray_conf, username)
         _remove_user_from_conf(v2ray_conf, cli_dict)
         user_db.loc[username, ['is_active', 'ban_reason']] = [False, 'manual']
@@ -165,9 +169,9 @@ def check_concurrent(logs: str):
     for k, v in user_ips.items():
         if user_db.loc[k, 'max_concurrent'] > 0 and len(v) > user_db.loc[k, 'max_concurrent']:
             print(f"User <{k}> has too many concurrent connections.")
-
             # Enter Banning procedure
             if user_db.loc[k, 'is_active'] == True:
+                v2ray_conf['Needs_restart'] = True
                 cli_dict = _get_cli_dict_from_config(v2ray_conf, k)
                 _remove_user_from_conf(v2ray_conf, cli_dict)
 
@@ -188,10 +192,11 @@ def check_concurrent(logs: str):
 def unban_user(username: str, is_manual: bool=False):
     if username not in banned_users_dict:
         print("User is not Banned")
-        return
+        return -1
 
     cli_dict = banned_users_dict[username]
     banned_users_dict.pop(username)
+    v2ray_conf['Needs_restart'] = True
     _update_json_config(banned_users_dict, CONFIG.temp_ban_users_file)
 
     _add_user_to_conf(v2ray_conf, cli_dict)
@@ -256,6 +261,7 @@ def init_server(server_name, new_port: int=None):
         new_conf = client.vmess.v2ray_config.find_one({"server_name": server_name}, projection={'_id': 0})
         # global v2ray_conf
         v2ray_conf = new_conf
+        v2ray_conf['Needs_restart'] = True
         if new_port is not None:
             v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
@@ -287,6 +293,7 @@ def init_server(server_name, new_port: int=None):
 
         # global v2ray_conf
         v2ray_conf = new_conf
+        v2ray_conf['Needs_restart'] = True
         if new_port is not None:
             v2ray_conf['inbounds'][0]["port"] = int(new_port)
         _update_json_config(v2ray_conf, CONFIG.conf_file)
@@ -361,6 +368,7 @@ def check_overages():
     for user, row in user_db.iterrows():
         if row['is_active'] and row['max_traffic'] > 0:
             if row['traffic_used'] > row['max_traffic']:
+                v2ray_conf['Needs_restart'] = True
                 cli_dict = _get_cli_dict_from_config(v2ray_conf, user)
 
                 banned_users_dict[user] = cli_dict

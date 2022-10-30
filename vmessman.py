@@ -134,5 +134,8 @@ if __name__ == "__main__":
         utils.update_mongo()
     
     if args.resetv2:
+        if utils.v2ray_conf['Needs_restart']:
         # print(os.getcwd())
-        subprocess.run(['/usr/local/bin/docker-compose', 'restart'])
+            subprocess.run(['/usr/local/bin/docker-compose', 'restart'])
+        else:
+            print("No Chnages Found. Restart not Necessary!")
