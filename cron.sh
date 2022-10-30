@@ -4,7 +4,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 # pwd
-python3 vmessman.py -U -R check
+python3 vmessmon.py -U -R check
 
 # Usage:
 # Put this in crontab -e
