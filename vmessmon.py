@@ -1,4 +1,5 @@
 import argparse
+from ctypes import util
 import sys
 import subprocess
 import os
@@ -137,5 +138,7 @@ if __name__ == "__main__":
         if utils.v2ray_conf['Needs_restart']:
         # print(os.getcwd())
             subprocess.run(['/usr/local/bin/docker-compose', 'restart'])
+            utils.v2ray_conf['Needs_restart'] = False
+            utils._update_json_config(utils.v2ray_conf, CONFIG.conf_file)
         else:
             print("No Chnages Found. Restart not Necessary!")
