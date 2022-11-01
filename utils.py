@@ -126,7 +126,7 @@ def new_user(username: str, alterid: int, level: int, max_concurrent: int, max_t
             "alterId": alterid,
             "email": username
         }
-        user_db.loc[username] = [True, 0, "", 0, max_traffic, max_concurrent, ""]
+        user_db.loc[username] = [True, 0, "", 0, 0, max_traffic, max_concurrent, ""]
         v2ray_conf['Needs_restart'] = True
         _update_user_db()
         _add_user_to_conf(v2ray_conf, userdict)
