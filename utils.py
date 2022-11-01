@@ -344,7 +344,7 @@ def update_traffics(stats: pd.DataFrame):
             user_up = stats.loc[f"{user}_uplink", 'value']
             user_down = stats.loc[f"{user}_downlink", 'value']
             user_traf = user_up + user_down
-            user_db.loc[user, 'traffic_used'] += user_traf
+            user_db.loc[user, 'session_usage'] = user_traf
             upload_updates.append(UpdateOne({'username': user}, {'$inc': {'value': user_up}}, upsert=True))
             download_updates.append(UpdateOne({'username': user}, {'$inc': {'value': user_down}}, upsert=True))
     _update_user_db()
@@ -367,7 +367,7 @@ def update_traffics(stats: pd.DataFrame):
 def check_overages():
     for user, row in user_db.iterrows():
         if row['is_active'] and row['max_traffic'] > 0:
-            if row['traffic_used'] > row['max_traffic']:
+            if row['traffic_used'] + row['session_usage'] > row['max_traffic']:
                 v2ray_conf['Needs_restart'] = True
                 cli_dict = _get_cli_dict_from_config(v2ray_conf, user)
 
@@ -376,7 +376,7 @@ def check_overages():
 
                 user_db.loc[user, ['is_active', 'ban_reason']] = [False, 'overage']
                 _remove_user_from_conf(v2ray_conf, cli_dict)
-                print(f"User <{user}> Banned Due to Overage ({row['traffic_used']}/{row['max_traffic']})")
+                print(f"User <{user}> Banned Due to Overage ({row['traffic_used'] + row['session_usage']}/{row['max_traffic']})")
                 asyncio.run(discord_monitoring(title='User Ban', name=user, message=f"user banned due to traffic overrage ({row['traffic_used']}/{row['max_traffic']})"))
     _update_user_db()
 

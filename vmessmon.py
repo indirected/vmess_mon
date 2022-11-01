@@ -140,5 +140,12 @@ if __name__ == "__main__":
             subprocess.run(['/usr/local/bin/docker-compose', 'restart'])
             utils.v2ray_conf['Needs_restart'] = False
             utils._update_json_config(utils.v2ray_conf, CONFIG.conf_file)
+            if 'session_usage' not in utils.user_db.columns:
+                utils.user_db.insert(loc=3, column='session_usage', value=0)
+            else:
+                utils.user_db.loc[:, ['traffic_used']] += utils.user_db.loc[:, ['session_usage']]
+                utils.user_db.loc[:, ['session_usage']] = 0
+            utils._update_user_db()
+            
         else:
             print("No Chnages Found. Restart not Necessary!")
