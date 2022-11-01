@@ -377,7 +377,7 @@ def check_overages():
                 user_db.loc[user, ['is_active', 'ban_reason']] = [False, 'overage']
                 _remove_user_from_conf(v2ray_conf, cli_dict)
                 print(f"User <{user}> Banned Due to Overage ({row['traffic_used']}/{row['max_traffic']})")
-                asyncio.run(discord_monitoring(title='User Ban', name=username, message=f"user banned due to traffic overrage ({row['traffic_used']}/{row['max_traffic']})"))
+                asyncio.run(discord_monitoring(title='User Ban', name=user, message=f"user banned due to traffic overrage ({row['traffic_used']}/{row['max_traffic']})"))
     _update_user_db()
 
 
