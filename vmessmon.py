@@ -143,8 +143,8 @@ if __name__ == "__main__":
             if 'session_usage' not in utils.user_db.columns:
                 utils.user_db.insert(loc=3, column='session_usage', value=0)
             else:
-                utils.user_db.loc[:, ['traffic_used']] += utils.user_db.loc[:, ['session_usage']]
-                utils.user_db.loc[:, ['session_usage']] = 0
+                utils.user_db.loc[:, 'traffic_used'] += utils.user_db['session_usage']
+                utils.user_db.loc[:, 'session_usage'] = 0
             utils._update_user_db()
             
         else:
